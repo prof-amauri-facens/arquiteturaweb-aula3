@@ -1,5 +1,6 @@
 package facens.arquiteturaweb.aula3.controller;
 
+import facens.arquiteturaweb.aula3.modelo.Task;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.*;
@@ -43,20 +44,22 @@ Especifica o prefixo de URL para todos os endpoints do controlador. Neste caso, 
 public class TaskController {
 
     // Simulação de dados com ArrayLists
-    private List<String> tasks = new ArrayList<>();
+    private List<Task> tasks = new ArrayList<>(); // Lista de tarefas
+    private Long nextId = 1L; // Contador para gerar IDs únicos
 
     // Construtor para adicionar exemplos pré-fixados de tarefas
     public TaskController() {
-        tasks.add("Estudar para a prova de matemática");
-        tasks.add("Fazer compras no mercado");
-        tasks.add("Preparar apresentação para o trabalho");
+        // Adiciona alguns exemplos de tarefas ao iniciar a aplicação
+        tasks.add(new Task(nextId++, "Estudar para a prova de matemática", "Revisar álgebra e geometria"));
+        tasks.add(new Task(nextId++, "Fazer compras no mercado", "Comprar itens de casa"));
+        tasks.add(new Task(nextId++, "Preparar apresentação para o trabalho", "Preparar slides e dados para apresentação"));
     }
 
     /*
      Especifica um endpoint para retornar a lista de tarefas e outro para retornar uma tarefa específica com base no índice.
      */
     @GetMapping
-    public List<String> getAllTasks() {
+    public List<Task> getAllTasks() {
         return tasks;
     }
 
@@ -67,12 +70,11 @@ public class TaskController {
 	Papel: Associa o valor do parâmetro do método ao valor de uma variável na URL.
 	Detalhes: Neste caso, permite acessar o índice da tarefa desejada a partir da URL.
 	 */
-    public String getTaskByIndex(@PathVariable int task) {
-        if (task >= 0 && task < tasks.size()) {
-            return tasks.get(task);
-        } else {
-            return "Tarefa não encontrada";
-        }
+    public Task getTaskByIndex(@PathVariable int id) {
+        return tasks.stream()
+                .filter(task -> task.getId().equals(id))
+                .findFirst()
+                .orElse(null);
     }
 
     /*
@@ -86,9 +88,10 @@ public class TaskController {
 	Papel: Indica que o argumento do método deve ser extraído do corpo da requisição.
 	Detalhes: Permite a passagem de dados no corpo de uma solicitação POST para o método do controlador.
 	 */
-    public void addTask(@RequestBody String task) {
-        tasks.add(task); // Adiciona a tarefa recebida aos dados simulados
+    public Task addTask(@RequestBody Task task) {
+        tasks.add(task);
         System.out.println("Tarefa adicionada: " + task); // Exibe os dados recebidos via POST no console
+        return task; // Retorna a tarefa adicionada
     }
 
 }
