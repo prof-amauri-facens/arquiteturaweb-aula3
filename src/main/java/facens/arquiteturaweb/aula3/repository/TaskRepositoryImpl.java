@@ -2,7 +2,7 @@ package facens.arquiteturaweb.aula3.repository;
 
 import facens.arquiteturaweb.aula3.modelo.Task;
 import org.springframework.stereotype.Repository;
-import java.util.ArrayList;
+import org.springframework.jdbc.core.JdbcTemplate;
 import java.util.List;
 
 /*
@@ -12,38 +12,73 @@ banco de dados, fornecendo operações CRUD (create, read, update, delete) para 
  */
 @Repository
 public class TaskRepositoryImpl implements TaskRepository {
-    private final List<Task> tasks = new ArrayList<>();
-    private Long nextId = 1L;
 
-    public TaskRepositoryImpl() {
-        // Adiciona algumas tarefas pré-cadastradas
-        tasks.add(new Task(1L, "Estudar para a prova de matemática", "Revisar cálculos e geometria"));
-        tasks.add(new Task(2L, "Fazer compras no mercado", "Comprar vegetais, carne e itens de limpeza"));
-        tasks.add(new Task(3L, "Preparar apresentação para o trabalho", "Criar slides e ensaiar apresentação"));
-        nextId = 4L; // Atualiza o próximo ID
+    /*
+    O JdbcTemplate é uma classe oferecida pelo Spring Framework para simplificar o uso do JDBC (Java Database Connectivity)
+    e interagir com bancos de dados relacionais de uma maneira mais fácil e eficiente. Ele fornece métodos convenientes
+    para executar operações comuns do JDBC, como consultas, atualizações, inserções e exclusões de dados no banco de dados.
+     */
+    private final JdbcTemplate jdbcTemplate;
+
+    /*
+    A injeção acontecendo no contrutor
+     */
+    public TaskRepositoryImpl(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
     public List<Task> findAll() {
-        return tasks;
+        /*
+        Este método executa uma consulta SQL no banco de dados usando a instrução SELECT * FROM task. Ele espera uma função
+        lambda (ou expressão lambda) como segundo argumento para mapear os resultados.
+         */
+        return jdbcTemplate.query("SELECT * FROM task", (resultSet, rowNum) -> {
+                    System.out.println("Numero da linha: " + rowNum);
+                    return new Task(
+                            resultSet.getLong("id"),
+                            resultSet.getString("title"),
+                            resultSet.getString("description")
+                    );
+                }
+        );
     }
 
     @Override
     public Task findById(Long id) {
-        return tasks.stream()
-                .filter(task -> task.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+        String query = "SELECT * FROM task WHERE id = ?";
+        /*
+        Este método é usado para executar uma consulta SQL que retorna um único resultado. Ele espera a consulta SQL,
+        um array de parâmetros de consulta (nesse caso, o ID) e uma função lambda que mapeia o resultado do banco de dados
+        para um objeto Java.
+
+        A quantidade e ordem de atributos no array de parametros deve ser a mesma na consulta SQL.
+         */
+        return jdbcTemplate.queryForObject(query, new Object[]{id}, (resultSet, rowNum) ->
+                new Task(
+                        /*
+                        Para se recuperar os valores das colunas é preciso saber o tipo e o nome, pois os métodos são
+                        especificos
+                         */
+                        resultSet.getLong("id"),
+                        resultSet.getString("title"),
+                        resultSet.getString("description")
+                )
+        );
     }
 
     @Override
     public Task save(Task task) {
-        if (task.getId() == null) {
-            task.setId(nextId++);
-            tasks.add(task);
+        if (task.getId() != null) {
+            String insertQuery = "INSERT INTO public.task (id, title, description) VALUES (?, ?, ?)";
+            /*
+            utilizada para executar operações de atualização no banco de dados usando o Spring JDBC. Essa função é
+            comumente usada para operações que modificam os dados no banco, como inserções, atualizações ou exclusões.
+             */
+            jdbcTemplate.update(insertQuery, task.getId(), task.getTitle(), task.getDescription());
         } else {
-            tasks.removeIf(t -> t.getId().equals(task.getId()));
-            tasks.add(task);
+            String updateQuery = "UPDATE public.task SET title = ?, description = ? WHERE id = ?";
+            jdbcTemplate.update(updateQuery, task.getTitle(), task.getDescription(), task.getId());
         }
         return task;
     }
