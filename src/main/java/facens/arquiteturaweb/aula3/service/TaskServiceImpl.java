@@ -1,7 +1,7 @@
 package facens.arquiteturaweb.aula3.service;
 
 import facens.arquiteturaweb.aula3.modelo.Task;
-import facens.arquiteturaweb.aula3.repository.TaskRepository;
+import facens.arquiteturaweb.aula3.modelo.TaskRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
