@@ -1,15 +1,11 @@
 package facens.arquiteturaweb.aula3.modelo;
 
-import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface TaskRepository {
-
-    List<Task> findAll();
-
-    Task findById(Long id);
-
-    Task save(Task task);
-
-    Task delete(int id);
+@Repository
+public interface TaskRepository extends JpaRepository<Task, Long> {
+    // Para usar a convenção, não é necessário sequer colocar a lista de métodos aqui
 }
+
 
