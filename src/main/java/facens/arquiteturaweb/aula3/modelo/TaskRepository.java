@@ -9,5 +9,7 @@ public interface TaskRepository {
     Task findById(Long id);
 
     Task save(Task task);
+
+    Task delete(int id);
 }
 

@@ -34,4 +34,11 @@ public class TaskController {
     public Task createTask(@RequestBody Task task) {
         return taskService.createTask(task);
     }
+
+    // Na configuração do endepoint é necessário adicionar entre chaves aonde ficará na url a variavel configurada abaixo
+    @DeleteMapping("/remove/{id}")
+    // A notação PathVariable permite que a API receba informações que estão contidas na URL
+    public Task removeTask(@PathVariable int id) {
+        return taskService.removeTask(id);
+    }
 }
