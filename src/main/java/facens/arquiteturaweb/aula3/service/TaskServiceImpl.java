@@ -43,4 +43,29 @@ public class TaskServiceImpl implements TaskService {
 
        taskRepository.deleteById(id);
     }
+
+    @Override
+    public List<Task> getTasksByCategoriaId(Long categoriaId) {
+        return taskRepository.findByCategoriaId(categoriaId);
+    }
+
+    @Override
+    public List<Task> getTasksByCategoriaNome(String nomeCategoria) {
+        return taskRepository.findByCategoriaNome(nomeCategoria);
+    }
+
+    @Override
+    public List<Task> getTasksByCategoriaNomeContaining(String nomeParcialCategoria) {
+        return taskRepository.findByCategoriaNomeContaining(nomeParcialCategoria);
+    }
+
+    @Override
+    public Long countTasksByCategoriaId(Long categoriaId) {
+        return taskRepository.countTasksPorCategoriaId(categoriaId);
+    }
+
+    @Override
+    public Long countTasksByPartialCategoriaName(String nomeParcial) {
+        return taskRepository.countTasksPorNomeCategoriaParcial(nomeParcial);
+    }
 }

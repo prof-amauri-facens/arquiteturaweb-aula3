@@ -54,18 +54,28 @@ public class TaskController {
         }
     }
 
-    /*
-    Exemplo com retorno usando wildcard para o corpo da mensagem
-     */
-//    @DeleteMapping("/remove/{id}")
-//    public ResponseEntity<?> removeTask(@PathVariable Long id) {
-//        try {
-//            Task removedTask = taskService.removeTask(id);
-//
-//            // Se a remoção for bem-sucedida, retorna a Task removida como parte da resposta
-//            return ResponseEntity.ok(removedTask);
-//        } catch (TarefaNaoEncontradaException e) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-//        }
-//    }
+    @GetMapping("/byCategoryId/{id}")
+    public List<Task> getTasksByCategoryId(@PathVariable Long id) {
+        return taskService.getTasksByCategoriaId(id);
+    }
+
+    @GetMapping("/byCategoryName/{name}")
+    public List<Task> getTasksByCategoryName(@PathVariable String name) {
+        return taskService.getTasksByCategoriaNome(name);
+    }
+
+    @GetMapping("/byCategoryNameContaining/{partialName}")
+    public List<Task> getTasksByCategoryNameContaining(@PathVariable String partialName) {
+        return taskService.getTasksByCategoriaNomeContaining(partialName);
+    }
+
+    @GetMapping("/countByCategoriaId/{categoriaId}")
+    public Long countTasksByCategoriaId(@PathVariable Long categoriaId) {
+        return taskService.countTasksByCategoriaId(categoriaId);
+    }
+
+    @GetMapping("/countByPartialCategoriaName/{partialName}")
+    public Long countTasksByPartialCategoriaName(@PathVariable String partialName) {
+        return taskService.countTasksByPartialCategoriaName(partialName);
+    }
 }
