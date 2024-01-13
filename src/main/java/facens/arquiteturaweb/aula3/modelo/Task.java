@@ -1,6 +1,9 @@
 package facens.arquiteturaweb.aula3.modelo;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,28 +17,19 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Task {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotBlank(message = "O título não pode estar em branco")
+    @Size(min = 3, max = 50, message = "O título deve ter entre 3 e 50 caracteres")
     private String title;
+
+    @NotBlank(message = "A descrição não pode estar em branco")
+    @Size(min = 10, max = 500, message = "A descrição deve ter entre 10 e 500 caracteres")
     private String description;
 
-    /*
-    A anotação @ManyToOne é usada para indicar que a associação entre duas entidades é do tipo muitos-para-um. Isso
-    significa que vários registros de uma entidade podem estar associados a um único registro de outra entidade.
-     */
+    @NotNull(message = "A categoria não pode ser nula")
     @ManyToOne
-    /*
-    A anotação @JoinColumn é usada para especificar a coluna na tabela do banco de dados que está sendo usada para mapear
-    o relacionamento entre as entidades.
-
-    name = "categoria_id": Indica o nome da coluna na tabela do banco de dados que mantém a chave estrangeira para a
-    entidade relacionada (Categoria, neste caso). Isso significa que a tabela de Task terá uma coluna chamada categoria_id
-    que será usada para estabelecer a associação com a tabela de Categoria.
-     */
     @JoinColumn(name = "categoria_id")
-    /*
-    Nós não temos apenas o ID da categoria como na tabela, nós temos o objeto completo.
-     */
     private Categoria categoria;
 }
-
-
