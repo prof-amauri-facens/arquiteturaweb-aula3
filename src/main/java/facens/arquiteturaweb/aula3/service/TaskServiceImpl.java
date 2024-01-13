@@ -3,6 +3,11 @@ package facens.arquiteturaweb.aula3.service;
 import facens.arquiteturaweb.aula3.exceptions.TarefaNaoEncontradaException;
 import facens.arquiteturaweb.aula3.modelo.Task;
 import facens.arquiteturaweb.aula3.modelo.TaskRepository;
+import facens.arquiteturaweb.aula3.modelo.external.Book;
+import facens.arquiteturaweb.aula3.service.external.BookService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -11,12 +16,18 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
+    private final BookService bookService;
     /*
-    Não é necessário graças a notação
+    A anotação @PersistenceContext é uma anotação do Java Persistence API (JPA) que é usada para injetar uma instância
+    do EntityManager em uma classe gerenciada pelo container, como em um componente Spring.
+
+    O EntityManager é uma interface no JPA que fornece métodos para interagir com o contexto de persistência JPA. Ele é
+    usado para realizar operações de leitura e gravação no banco de dados, como persistir entidades, recuperar entidades
+    por meio de consultas, atualizar entidades e excluir entidades.
      */
-//    public TaskServiceImpl(TaskRepository taskRepository) {
-//        this.taskRepository = taskRepository;
-//    }
+    @PersistenceContext
+    private EntityManager entityManager;
+
 
     @Override
     public List<Task> getAllTasks() {
@@ -67,5 +78,37 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public Long countTasksByPartialCategoriaName(String nomeParcial) {
         return taskRepository.countTasksPorNomeCategoriaParcial(nomeParcial);
+    }
+
+    @Override
+    public void convertBooksToTasks() {
+        List<Book> books = bookService.getAllBooks();
+
+        for (Book book : books) {
+            Task task = new Task();
+
+            // Atribua um identificador específico para a Task com base no livro
+            task.setId(generateTaskId());
+
+            task.setTitle(book.getTitle());
+            task.setDescription("Descrição da tarefa com base no livro: " + book.getTitle());
+
+            taskRepository.save(task);
+        }
+    }
+
+    // Método criado apenas para gerar um novo id baseado no maior id, já que a tabela não tem autoincremento
+    private Long generateTaskId() {
+        // Consulta para obter o maior ID existente na tabela de Task
+        Query query = entityManager.createQuery("SELECT MAX(t.id) FROM Task t");
+        Long maxId = (Long) query.getSingleResult();
+
+        // Se não há registros, maxId será null, então definimos para 0
+        if (maxId == null) {
+            maxId = 0L;
+        }
+
+        // Adiciona 1 para obter o próximo ID
+        return maxId + 1;
     }
 }

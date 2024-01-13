@@ -17,4 +17,6 @@ public interface TaskService {
     Long countTasksByCategoriaId(Long categoriaId);
 
     Long countTasksByPartialCategoriaName(String partialName);
+
+    void convertBooksToTasks();
 }

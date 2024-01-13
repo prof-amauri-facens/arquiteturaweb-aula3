@@ -78,4 +78,14 @@ public class TaskController {
     public Long countTasksByPartialCategoriaName(@PathVariable String partialName) {
         return taskService.countTasksByPartialCategoriaName(partialName);
     }
+
+    @PostMapping("/convert-books-to-tasks")
+    public ResponseEntity<String> convertBooksToTasks() {
+        try {
+            taskService.convertBooksToTasks();
+            return ResponseEntity.ok("Livros convertidos em tarefas com sucesso!");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Erro ao converter livros em tarefas: " + e.getMessage());
+        }
+    }
 }
